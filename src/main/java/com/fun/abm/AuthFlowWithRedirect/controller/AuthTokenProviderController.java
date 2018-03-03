@@ -1,6 +1,7 @@
 package com.fun.abm.AuthFlowWithRedirect.controller;
 
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,10 @@ class AuthTokenProviderController {
                                                 @RequestParam(PARAM_STATE) String state,
                                                 HttpServletResponse httpServletResponse) {
 
+        if (isInputValid(code, state)) {
+            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+        }
+
         Cookie authtoken = new Cookie("authtoken", "");
         httpServletResponse.addCookie(authtoken);
 
@@ -32,6 +37,10 @@ class AuthTokenProviderController {
         }
 
         return  null;
+    }
+
+    private boolean isInputValid(String code, String state) {
+        return code.equals("invalid_code")|| state.equals("invalid_state");
     }
 
 }

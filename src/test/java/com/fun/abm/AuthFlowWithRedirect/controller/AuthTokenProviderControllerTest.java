@@ -25,7 +25,8 @@ public class AuthTokenProviderControllerTest {
     }
 
     @Test
-    public void shouldReturnValidTokenWithRedirect() throws Exception {
+    public void shouldReturnValidTokenWithRedirectOnValidInput() throws Exception {
+
 
         URI uri = new URI("/api/auth" + "?"
                 + "state=valid_state" + "&"
@@ -37,4 +38,27 @@ public class AuthTokenProviderControllerTest {
                 .andExpect(cookie().exists("authtoken"));
 
     }
+
+    @Test
+    public void shouldReturnResponseWithBadRequestHttpStatusCodeOnInValidInput() throws Exception {
+        URI uri = new URI("/api/auth" + "?"
+                + "state=invalid_state" + "&"
+                + "code=invalid_code");
+
+        mvc.perform(get(uri))
+                .andExpect(status().isBadRequest())
+                .andExpect(cookie().doesNotExist("authtoken"));
+
+    }
+
+    @Test
+    public void shouldNotReturnValidTokenWhenStateAndCodeAreNotPassed() throws Exception {
+
+        URI uri = new URI("/api/auth" );
+        mvc.perform(get(uri))
+                .andExpect(status().is4xxClientError())
+                .andExpect(cookie().doesNotExist("authtoken"));
+
+    }
+
 }
