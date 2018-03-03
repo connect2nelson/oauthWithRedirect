@@ -22,7 +22,7 @@ public class AuthTokenProviderControllerTest {
 
 
     @Before
-    public void setuip(){
+    public void setuip() {
         AuthTokenProviderController unitUnderTest = new AuthTokenProviderController();
         mvc = MockMvcBuilders.standaloneSetup(unitUnderTest).build();
     }
@@ -37,17 +37,15 @@ public class AuthTokenProviderControllerTest {
 
         mvc.perform(get(uri))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/redirect"))
                 .andExpect(cookie().exists("authtoken"))
-                .andExpect(cookie().value("authtoken", "valid-authtoken"))
-        ;
+                .andExpect(cookie().value("authtoken", "valid-authtoken"));
 
 
     }
 
     @Test
     public void shouldReturnResponseWithBadRequestHttpStatusCodeOnInValidInput() throws Exception {
-        URI uri = new URI(GET_TOKEN_ENDPOINT+ "?"
+        URI uri = new URI(GET_TOKEN_ENDPOINT + "?"
                 + "state=invalid_state" + "&"
                 + "code=invalid_code");
 
@@ -77,6 +75,32 @@ public class AuthTokenProviderControllerTest {
         mvc.perform(get(uri))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(cookie().domain("authtoken", "app.com"));
+
+    }
+
+    @Test
+    public void shouldReturnValidTokenAsCookieWithPathSet() throws Exception {
+
+        URI uri = new URI(GET_TOKEN_ENDPOINT + "?"
+                + "state=valid_state" + "&"
+                + "code=valid_code");
+
+        mvc.perform(get(uri))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(cookie().path("authtoken", "/api/auth/getToken"));
+
+    }
+
+    @Test
+    public void shouldReturnValidTokenAsCookieWithARedirectToARedirectUrl() throws Exception {
+
+        URI uri = new URI(GET_TOKEN_ENDPOINT + "?"
+                + "state=valid_state" + "&"
+                + "code=valid_code");
+
+        mvc.perform(get(uri))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/redirect"));
 
     }
 

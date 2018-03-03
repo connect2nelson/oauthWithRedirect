@@ -39,6 +39,7 @@ class AuthTokenProviderController {
     private Cookie createAuthTokenCookie() {
         Cookie authtokenCookie = new Cookie("authtoken", generateAuthToken());
         authtokenCookie.setDomain("app.com");
+        authtokenCookie.setPath("/api/auth/getToken");
         return authtokenCookie;
     }
 
