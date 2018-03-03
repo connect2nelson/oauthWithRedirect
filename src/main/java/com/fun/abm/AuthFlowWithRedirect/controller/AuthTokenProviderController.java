@@ -21,26 +21,21 @@ class AuthTokenProviderController {
     @GetMapping(value = "/api/auth")
     private ResponseEntity<String> getAuthToken(@RequestParam(PARAM_CODE) String code,
                                                 @RequestParam(PARAM_STATE) String state,
-                                                HttpServletResponse httpServletResponse) {
+                                                HttpServletResponse httpServletResponse) throws IOException {
 
         if (isInputValid(code, state)) {
-            return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         Cookie authtoken = new Cookie("authtoken", "");
         httpServletResponse.addCookie(authtoken);
+        httpServletResponse.sendRedirect("/redirect");
 
-        try {
-            httpServletResponse.sendRedirect("/redirect");
-        } catch (IOException e) {
-
-        }
-
-        return  null;
+        return null;
     }
 
     private boolean isInputValid(String code, String state) {
-        return code.equals("invalid_code")|| state.equals("invalid_state");
+        return code.equals("invalid_code") || state.equals("invalid_state");
     }
 
 }
