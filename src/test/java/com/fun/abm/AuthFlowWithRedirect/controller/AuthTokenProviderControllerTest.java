@@ -8,6 +8,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.net.URI;
+import java.net.URLEncoder;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -16,9 +17,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AuthTokenProviderControllerTest {
 
+
     private MockMvc mvc;
 
     private static String GET_TOKEN_ENDPOINT = "/api/auth/token";
+    private static final String REDIRECT_URI = "https://app.com/redirect";
 
 
     @Before
@@ -66,15 +69,19 @@ public class AuthTokenProviderControllerTest {
     }
 
     @Test
-    public void shouldReturnValidTokenAsCookieWithDomainSet() throws Exception {
+    public void shouldReturnValidTokenAsCookieWithDomainSetFromTheRedirectUrl() throws Exception {
 
         URI uri = new URI(GET_TOKEN_ENDPOINT + "?"
                 + "state=valid_state" + "&"
                 + "code=valid_code");
 
+        URI redirectURI = new URI("https://app.com/redirect");
+
+        String domain = redirectURI.getHost();
+
         mvc.perform(get(uri))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(cookie().domain("authtoken", "app.com"));
+                .andExpect(cookie().domain("authtoken", domain));
 
     }
 
@@ -100,7 +107,7 @@ public class AuthTokenProviderControllerTest {
 
         mvc.perform(get(uri))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/redirect"));
+                .andExpect(redirectedUrl(URLEncoder.encode(REDIRECT_URI, "UTF-8")));
 
     }
 
