@@ -25,7 +25,7 @@ public class AuthTokenProviderControllerTest {
     }
 
     @Test
-    public void shouldReturnValidTokenWithRedirectOnValidInput() throws Exception {
+    public void shouldReturnValidTokenWithRedirect() throws Exception {
 
         URI uri = new URI("/api/auth" + "?"
                 + "state=valid_state" + "&"
