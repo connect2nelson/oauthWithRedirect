@@ -17,8 +17,10 @@ class AuthTokenProviderController {
     private static final String PARAM_STATE = "state";
     private static final String PARAM_CODE = "code";
 
+    private static final String  GET_TOKEN_ENDPOINT = "/api/auth/token";
 
-    @GetMapping(value = "/api/auth")
+
+    @GetMapping(value = GET_TOKEN_ENDPOINT)
     private ResponseEntity<String> getAuthToken(@RequestParam(PARAM_CODE) String code,
                                                 @RequestParam(PARAM_STATE) String state,
                                                 HttpServletResponse httpServletResponse) throws IOException {
@@ -27,11 +29,21 @@ class AuthTokenProviderController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        Cookie authtoken = new Cookie("authtoken", "");
-        httpServletResponse.addCookie(authtoken);
+        Cookie authtokenCookie = createAuthTokenCookie();
+        httpServletResponse.addCookie(authtokenCookie);
         httpServletResponse.sendRedirect("/redirect");
 
         return null;
+    }
+
+    private Cookie createAuthTokenCookie() {
+        Cookie authtokenCookie = new Cookie("authtoken", generateAuthToken());
+        authtokenCookie.setDomain("app.com");
+        return authtokenCookie;
+    }
+
+    private String generateAuthToken() {
+        return "valid-authtoken";
     }
 
     private boolean isInputValid(String code, String state) {

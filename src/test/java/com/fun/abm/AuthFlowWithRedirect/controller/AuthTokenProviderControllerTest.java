@@ -18,6 +18,9 @@ public class AuthTokenProviderControllerTest {
 
     private MockMvc mvc;
 
+    private static String GET_TOKEN_ENDPOINT = "/api/auth/token";
+
+
     @Before
     public void setuip(){
         AuthTokenProviderController unitUnderTest = new AuthTokenProviderController();
@@ -28,20 +31,23 @@ public class AuthTokenProviderControllerTest {
     public void shouldReturnValidTokenWithRedirectOnValidInput() throws Exception {
 
 
-        URI uri = new URI("/api/auth" + "?"
+        URI uri = new URI(GET_TOKEN_ENDPOINT + "?"
                 + "state=valid_state" + "&"
                 + "code=valid_code");
 
         mvc.perform(get(uri))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/redirect"))
-                .andExpect(cookie().exists("authtoken"));
+                .andExpect(cookie().exists("authtoken"))
+                .andExpect(cookie().value("authtoken", "valid-authtoken"))
+        ;
+
 
     }
 
     @Test
     public void shouldReturnResponseWithBadRequestHttpStatusCodeOnInValidInput() throws Exception {
-        URI uri = new URI("/api/auth" + "?"
+        URI uri = new URI(GET_TOKEN_ENDPOINT+ "?"
                 + "state=invalid_state" + "&"
                 + "code=invalid_code");
 
@@ -54,10 +60,23 @@ public class AuthTokenProviderControllerTest {
     @Test
     public void shouldNotReturnValidTokenWhenStateAndCodeAreNotPassed() throws Exception {
 
-        URI uri = new URI("/api/auth" );
+        URI uri = new URI(GET_TOKEN_ENDPOINT);
         mvc.perform(get(uri))
                 .andExpect(status().is4xxClientError())
                 .andExpect(cookie().doesNotExist("authtoken"));
+
+    }
+
+    @Test
+    public void shouldReturnValidTokenAsCookieWithDomainSet() throws Exception {
+
+        URI uri = new URI(GET_TOKEN_ENDPOINT + "?"
+                + "state=valid_state" + "&"
+                + "code=valid_code");
+
+        mvc.perform(get(uri))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(cookie().domain("authtoken", "app.com"));
 
     }
 
